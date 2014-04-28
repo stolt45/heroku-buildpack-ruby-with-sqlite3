@@ -1,192 +1,93 @@
-Heroku buildpack: Ruby
-======================
+Heroku buildpack: Ruby with SQLite3
+===================================
 
-This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for Ruby, Rack, and Rails apps. It uses [Bundler](http://gembundler.com) for dependency management.
+This is a fork repository from [heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby)
+and it is revised in order to use SQLite3 on Heroku.
+
+
+Heroku restricts using SQLite3
+-----
+Heroku does not recommend using SQLite3 on the system; for more information, 
+please refer Heroku's document page [SQLite on Heroku](https://devcenter.heroku.com/articles/sqlite3)
+and read it carefully.
+The reason is that Heroku's Cedar stack has an ephemeral filesystem.
+This means that SQLite3's database contents will be cleared periodically.
+Therefore Heroku deliberately restricts the SQLite3 deploy.
+
+
+Why we still need SQLite3 on Heroku
+-----
+As you know well, SQLite3 can manage all kind of database on only one data file.
+It is very easy to handle the data and backup it.
+
+On Heroku's ephemeral filesystem, SQLite3 dose not fit every purpose, 
+but in certain applications, it is more useful rather than PostgreSQL database.
+It is the case of less frequently to update the database, besides 
+the data is updated by only the site owner, not site visitor.
+
+
+
+Proper application example
+-----
+* ZIP code and city name database
+* Monthly average temperature and precipitation record for past 100 years
+* Blog that is updated by only one site owner
+
+
+Not proper application example
+-----
+* application that the database will be updated frequently by site visitor; like BBS system.
+
+
 
 Usage
 -----
+First, please develop your App and SQLite3 database file on your local site.
+Next, store your App and SQLite3 database file together into Git,
+and deploy (git push) it to Heroku.
 
-### Ruby
+The detail is like following
 
-Example Usage:
 
-    $ ls
-    Gemfile Gemfile.lock
+### Gemfile
+Please add "sqlite3" to Gemfile file and run "bundle install"
 
-    $ heroku create --stack cedar --buildpack https://github.com/heroku/heroku-buildpack-ruby.git
+    gem "sqlite3"
 
-    $ git push heroku master
-    ...
-    -----> Heroku receiving push
-    -----> Fetching custom buildpack
-    -----> Ruby app detected
-    -----> Installing dependencies using Bundler version 1.1.rc
-           Running: bundle install --without development:test --path vendor/bundle --deployment
-           Fetching gem metadata from http://rubygems.org/..
-           Installing rack (1.3.5)
-           Using bundler (1.1.rc)
-           Your bundle is complete! It was installed into ./vendor/bundle
-           Cleaning up the bundler cache.
-    -----> Discovering process types
-           Procfile declares types -> (none)
-           Default types for Ruby  -> console, rake
 
-The buildpack will detect your app as Ruby if it has a `Gemfile` and `Gemfile.lock` files in the root directory. It will then proceed to run `bundle install` after setting up the appropriate environment for [ruby](http://ruby-lang.org) and [Bundler](http://gembundler.com).
 
-#### Run the Tests
+### config/database.yml
+Specify sqlite3 for both sections of **development:** and **production:**.
 
-The tests on this buildpack are written in Rspec to allow the use of
-`focused: true`. Parallelization of testing is provided by
-https://github.com/grosser/parallel_tests this lib spins up an arbitrary
-number of processes and running a different test file in each process,
-it does not parallelize tests within a test file. To run the tests: clone the repo, then `bundle install` then clone the test fixtures by running:
+    # SQLite3 configuration
+
+    development:
+      adapter: sqlite3
+      database: mydata.sqlite3
+
+    production:
+      adapter: sqlite3
+      database: mydata.sqlite3
+
+
+
+  
+### BUILDPACK_URL
+Before deploy (git push), set environment variable BUILDPACK_URL like following.
+Please refer [Using a custom Buildpack](https://devcenter.heroku.com/articles/buildpacks#using-a-custom-buildpack)
 
 ```sh
-$ hatchet install
+$ heroku config:set BUILDPACK_URL=https://github.com/yotsumoto/heroku-buildpack-ruby-with-sqlite3
 ```
 
-Now run the tests:
+
+
+### Git and Deploy
 
 ```sh
-$ bundle exec parallel_rspec -n 6 spec/
+$ git init
+$ git add .
+$ git commit -m "init"
+$ git push heroku master
 ```
-
-If you don't want to run them in parallel you can still:
-
-```sh
-$ bundle exec rake spec
-```
-
-Now go take a nap or something for a really long time.
-
-#### Bundler
-
-For non-windows `Gemfile.lock` files, the `--deployment` flag will be used. In the case of windows, the Gemfile.lock will be deleted and Bundler will do a full resolve so native gems are handled properly. The `vendor/bundle` directory is cached between builds to allow for faster `bundle install` times. `bundle clean` is used to ensure no stale gems are stored between builds.
-
-### Rails 2
-
-Example Usage:
-
-    $ ls
-    app  config  db  doc  Gemfile  Gemfile.lock  lib  log  public  Rakefile  README  script  test  tmp  vendor
-
-    $ ls config/environment.rb
-    config/environment.rb
-
-    $ heroku create --stack cedar --buildpack https://github.com/heroku/heroku-buildpack-ruby.git
-
-    $ git push heroku master
-    ...
-    -----> Heroku receiving push
-    -----> Ruby/Rails app detected
-    -----> Installing dependencies using Bundler version 1.1.rc
-    ...
-    -----> Writing config/database.yml to read from DATABASE_URL
-    -----> Rails plugin injection
-           Injecting rails_log_stdout
-    -----> Discovering process types
-           Procfile declares types      -> (none)
-           Default types for Ruby/Rails -> console, rake, web, worker
-
-The buildpack will detect your app as a Rails 2 app if it has a `environment.rb` file in the `config`  directory.
-
-#### Rails Log STDOUT
-  A [rails_log_stdout](http://github.com/ddollar/rails_log_stdout) is installed by default so Rails' logger will log to STDOUT and picked up by Heroku's [logplex](http://github.com/heroku/logplex).
-
-#### Auto Injecting Plugins
-
-Any vendored plugin can be stopped from being installed by creating the directory it's installed to in the slug. For instance, to prevent rails_log_stdout plugin from being injected, add `vendor/plugins/rails_log_stdout/.gitkeep` to your git repo.
-
-### Rails 3
-
-Example Usage:
-
-    $ ls
-    app  config  config.ru  db  doc  Gemfile  Gemfile.lock  lib  log  Procfile  public  Rakefile  README  script  tmp  vendor
-
-    $ ls config/application.rb
-    config/application.rb
-
-    $ heroku create --stack cedar --buildpack https://github.com/heroku/heroku-buildpack-ruby.git
-
-    $ git push heroku master
-    -----> Heroku receiving push
-    -----> Ruby/Rails app detected
-    -----> Installing dependencies using Bundler version 1.1.rc
-           Running: bundle install --without development:test --path vendor/bundle --deployment
-           ...
-    -----> Writing config/database.yml to read from DATABASE_URL
-    -----> Preparing app for Rails asset pipeline
-           Running: rake assets:precompile
-    -----> Rails plugin injection
-           Injecting rails_log_stdout
-           Injecting rails3_serve_static_assets
-    -----> Discovering process types
-           Procfile declares types      -> web
-           Default types for Ruby/Rails -> console, rake, worker
-
-The buildpack will detect your apps as a Rails 3 app if it has an `application.rb` file in the `config` directory.
-
-#### Assets
-
-To enable static assets being served on the dyno, [rails3_serve_static_assets](http://github.com/pedro/rails3_serve_static_assets) is installed by default. If the [execjs gem](http://github.com/sstephenson/execjs) is detected then [node.js](http://github.com/joyent/node) will be vendored. The `assets:precompile` rake task will get run if no `public/manifest.yml` is detected.  See [this article](http://devcenter.heroku.com/articles/rails31_heroku_cedar) on how rails 3.1 works on cedar.
-
-Hacking
--------
-
-To use this buildpack, fork it on Github.  Push up changes to your fork, then create a test app with `--buildpack <your-github-url>` and push to it.
-
-To change the vendored binaries for Bundler, [Node.js](http://github.com/joyent/node), and rails plugins, use the rake tasks provided by the `Rakefile`. You'll need an S3-enabled AWS account and a bucket to store your binaries in as well as the [vulcan](http://github.com/heroku/vulcan) gem to build the binaries on heroku.
-
-For example, you can change the vendored version of Bundler to 1.1.rc.
-
-First you'll need to build a Heroku-compatible version of Node.js:
-
-    $ export AWS_ID=xxx AWS_SECRET=yyy S3_BUCKET=zzz
-    $ s3 create $S3_BUCKET
-    $ rake gem:install[bundler,1.1.rc]
-
-Open `lib/language_pack/ruby.rb` in your editor, and change the following line:
-
-    BUNDLER_VERSION = "1.1.rc"
-
-Open `lib/language_pack/base.rb` in your editor, and change the following line:
-
-    VENDOR_URL = "https://s3.amazonaws.com/zzz"
-
-Commit and push the changes to your buildpack to your Github fork, then push your sample app to Heroku to test.  You should see:
-
-    -----> Installing dependencies using Bundler version 1.1.rc
-
-NOTE: You'll need to vendor the plugins, node, Bundler, and libyaml by running the rake tasks for the buildpack to work properly.
-
-Flow
-----
-
-Here's the basic flow of how the buildpack works:
-
-Ruby (Gemfile and Gemfile.lock is detected)
-
-* runs Bundler
-* installs binaries
-  * installs node if the gem execjs is detected
-* runs `rake assets:precompile` if the rake task is detected
-
-Rack (config.ru is detected)
-
-* everything from Ruby
-* sets RACK_ENV=production
-
-Rails 2 (config/environment.rb is detected)
-
-* everything from Rack
-* sets RAILS_ENV=production
-* install rails 2 plugins
-  * [rails_log_stdout](http://github.com/ddollar/rails_log_stdout)
-
-Rails 3 (config/application.rb is detected)
-
-* everything from Rails 2
-* install rails 3 plugins
-  * [rails3_server_static_assets](https://github.com/pedro/rails3_serve_static_assets)
 
