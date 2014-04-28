@@ -526,7 +526,7 @@ WARNING
 puts File.expand_path(  __FILE__ )
 puts File.expand_path(  $PROGRAM_NAME )
 puts yaml_include
-exit
+
 
 
           puts "Running: #{bundle_command}"
