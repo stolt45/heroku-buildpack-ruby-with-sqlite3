@@ -131,24 +131,24 @@ Rivised Points
 
 
 
-### sqlite3.h
+### Add sqlite3.h
 I attached **sqlite3.h** file under **vendor** directory.
 
-vendor/sqlite3.h
+[vendor/sqlite3.h](https://github.com/yotsumoto/heroku-buildpack-ruby-with-sqlite3/blob/master/vendor/sqlite3.h)
 
 
-### libsqlite3.so
+### Symbolic link libsqlite3.so
 For preparing libsqlite3.so, symbolic link from libsqlite3.so to /usr/lib/libsqlite3.so.0.8.6.
 
-lib/language_pack/ruby.rb
+[lib/language_pack/ruby.rb](https://github.com/yotsumoto/heroku-buildpack-ruby-with-sqlite3/blob/master/lib/language_pack/ruby.rb)
 ```ruby
 L525      run("ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so")                        # for sqlite3   make symbolic link
 ```
 
-### sqlite3.h
+### Copy sqlite3.h
 For preparing sqlite3.h, copy from vendor/sqlite3.h to include directory.
 
-lib/language_pack/ruby.rb
+[lib/language_pack/ruby.rb](https://github.com/yotsumoto/heroku-buildpack-ruby-with-sqlite3/blob/master/lib/language_pack/ruby.rb)
 ```ruby
 L526      run("cp #{File.expand_path( "../../vendor/sqlite3.h", $PROGRAM_NAME )} #{yaml_include}")   # for sqlite3   prepare sqlite3.h
 ```
@@ -160,17 +160,17 @@ config/database.yml overwiting method **create_database_yml** is called from L94
 that is inside of  L81 **compile** method. 
 In order to stop overwriting to config/database.yml, commented out this L94.
 
-lib/language_pack/ruby.rb
+[lib/language_pack/ruby.rb](https://github.com/yotsumoto/heroku-buildpack-ruby-with-sqlite3/blob/master/lib/language_pack/ruby.rb)
 ```ruby
 L94  #        create_database_yml        # for sqlite3    config/database.yml  should be kept intact
 ```
 
 
-### heroku-postgresql:hobby-dev addon
+### Avoid heroku-postgresql:hobby-dev addon
 In order to prevent from automatical installing **heroku-postgresql:hobby-dev addon**,
 commented out these tree lines.
 
-lib/language_pack/rails2.rb
+[lib/language_pack/rails2.rb](https://github.com/yotsumoto/heroku-buildpack-ruby-with-sqlite3/blob/master/lib/language_pack/rails2.rb)
 ```ruby
 L65  #  def add_dev_database_addon                # for sqlite3   prevent from forcing addon 'heroku-postgresql:hobby-dev'
 L66  #    ['heroku-postgresql:hobby-dev']
