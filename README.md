@@ -31,7 +31,7 @@ Proper application example
 -----
 * ZIP code and city name database
 * Monthly average temperature and precipitation record for past 100 years
-* Blog that is updated by only one site owner
+* Blog that is updated by only one site owner (update blog locally and deploy it every time)
 
 
 Not proper application example
@@ -90,4 +90,91 @@ $ git add .
 $ git commit -m "init"
 $ git push heroku master
 ```
+
+
+
+
+Technical Explanation : Why it fails to bundle sqlite3 gem on Heroku
+-----
+On Ruby or Rails App, if you add "sqlite3" to Gemfile and deploy it
+without custom buildpack (it means by default buildpack),
+it will fail and not complete.
+
+The reason is like following.
+
+When sqlite3 gem is installed, it is making **native extension**.
+This means that gem installer does **C compile** and **link**.
+But Heroku's Cedar stack dose not have **sqlite3.h** that is included when C compiler is running,
+and does not have symbolic link of **libsqlite3.so** library neither that is linked by linker.
+In other words, **libsqlite3-dev** package is not installed on Heroku's Cedar stack.
+
+In order to install sqlite3 gem properly,
+we have to solve these two problems like **sqlite3.h** and **libsqlite3.so**.
+
+In addition to that, Heroku has other two problems.
+
+The first problem is that 
+default buildpack [heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby)
+is overwriting **config/database.yml**  file and
+sqlite3 configuration will be disappeared.
+
+The second problem is that 
+default buildpack [heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby)
+is automatically installing **heroku-postgresql:hobby-dev addon**.
+This **heroku-postgresql addon** require the "pg" gem,
+and it will cause the runtime error because "pg" gem is not installed.
+
+
+
+Rivised Points
+-----
+
+
+
+### sqlite3.h
+I attached **sqlite3.h** file under **vendor** directory.
+
+vendor/sqlite3.h
+
+
+### libsqlite3.so
+For preparing libsqlite3.so, symbolic link from libsqlite3.so to /usr/lib/libsqlite3.so.0.8.6.
+
+lib/language_pack/ruby.rb
+```ruby
+L525      run("ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so")                        # for sqlite3   make symbolic link
+```
+
+### sqlite3.h
+For preparing sqlite3.h, copy from vendor/sqlite3.h to include directory.
+
+lib/language_pack/ruby.rb
+```ruby
+L526      run("cp #{File.expand_path( "../../vendor/sqlite3.h", $PROGRAM_NAME )} #{yaml_include}")   # for sqlite3   prepare sqlite3.h
+```
+
+
+
+### Avoid overwiting to config/database.yml
+config/database.yml overwiting method **create_database_yml** is called from L94
+that is inside of  L81 **compile** method. 
+In order to stop overwriting to config/database.yml, commented out this L94.
+
+lib/language_pack/ruby.rb
+```ruby
+L94  #        create_database_yml        # for sqlite3    config/database.yml  should be kept intact
+```
+
+
+### heroku-postgresql:hobby-dev addon
+In order to prevent from automatical installing **heroku-postgresql:hobby-dev addon**,
+commented out these tree lines.
+
+lib/language_pack/rails2.rb
+```ruby
+L65  #  def add_dev_database_addon                # for sqlite3   prevent from forcing addon 'heroku-postgresql:hobby-dev'
+L66  #    ['heroku-postgresql:hobby-dev']
+L67  #  end
+```
+
 
