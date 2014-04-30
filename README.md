@@ -64,11 +64,11 @@ Specify sqlite3 for both sections of **development:** and **production:**.
 
     development:
       adapter: sqlite3
-      database: mydata.sqlite3
+      database: db/mydata.sqlite3
 
     production:
       adapter: sqlite3
-      database: mydata.sqlite3
+      database: db/mydata.sqlite3
 
 
 
