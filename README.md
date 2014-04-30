@@ -4,6 +4,11 @@ Heroku buildpack: Ruby with SQLite3
 This is a fork repository from [heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby)
 and it is revised in order to use SQLite3 on Heroku.
 
+***
+**!!! CAUTION !!!**  
+**Please understand the RISK of the data vanishment on Heroku with SQLite3.**
+***
+
 
 Heroku restricts using SQLite3
 -----
@@ -37,8 +42,10 @@ Proper application example
 
 Not proper application example
 -----
-* application that the database will be updated frequently by site visitor; like BBS system.
+* application that the database will be updated frequently by site visitor; like BBS system.  
 
+
+***
 
 
 Usage
@@ -74,7 +81,7 @@ Specify sqlite3 for both sections of **development:** and **production:**.
 
   
 ### BUILDPACK_URL
-Before deploy (git push), set environment variable BUILDPACK_URL like following.
+Before deploy (git push), set environment variable **BUILDPACK_URL** like following.
 Please refer [Using a custom Buildpack](https://devcenter.heroku.com/articles/buildpacks#using-a-custom-buildpack)
 
 ```sh
@@ -90,9 +97,10 @@ $ git init
 $ git add .
 $ git commit -m "init"
 $ git push heroku master
-```
+```  
 
 
+***
 
 
 Technical Explanation : Why it fails to bundle sqlite3 gem on Heroku
@@ -123,8 +131,10 @@ The second problem is that
 default buildpack [heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby)
 is automatically installing **heroku-postgresql:hobby-dev addon**.
 This **heroku-postgresql addon** require the "pg" gem,
-and it will cause the runtime error because "pg" gem is not installed.
+and it will cause the runtime error because "pg" gem is not installed.  
 
+
+***
 
 
 Rivised Points
@@ -177,4 +187,7 @@ L65  #  def add_dev_database_addon                # for sqlite3   prevent from f
 L66  #    ['heroku-postgresql:hobby-dev']
 L67  #  end
 ```
+
+
+***
 
