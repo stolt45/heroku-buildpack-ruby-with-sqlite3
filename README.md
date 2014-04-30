@@ -10,7 +10,8 @@ Heroku restricts using SQLite3
 Heroku does not recommend using SQLite3 on the system; for more information, 
 please refer Heroku's document page [SQLite on Heroku](https://devcenter.heroku.com/articles/sqlite3)
 and read it carefully.
-The reason is that Heroku's Cedar stack has an ephemeral filesystem.
+The reason is that Heroku's Cedar stack has an 
+**[ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem)**.
 This means that SQLite3's database contents will be cleared periodically.
 Therefore Heroku deliberately restricts the SQLite3 deploy.
 
@@ -176,5 +177,4 @@ L65  #  def add_dev_database_addon                # for sqlite3   prevent from f
 L66  #    ['heroku-postgresql:hobby-dev']
 L67  #  end
 ```
-
 
