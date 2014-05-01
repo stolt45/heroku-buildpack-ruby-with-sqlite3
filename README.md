@@ -6,7 +6,7 @@ and it is revised in order to use SQLite3 on Heroku.
 
 ***
 **!!! CAUTION !!!**  
-**Please understand the RISK of the data vanishment on Heroku with SQLite3.**
+**Please understand the RISK of the updated data vanishment on Heroku with SQLite3.**
 ***
 
 
@@ -31,6 +31,14 @@ but in certain applications, it is more useful rather than PostgreSQL database.
 It is the case of less frequently to update the database, besides 
 the data is updated by only the site owner, not site visitor.
 
+If you can prepare the data in advance,
+you would update SQLite3 database by yourself locally and
+store the application scripts and SQLite3 database file together,
+then deploy (git push) it to Heroku.
+It will work perfectly to read and query the database on Heroku.
+(Of course, writing also works fine, but that data will be vanished soon.)
+This is very easy operation.
+And this is also effective to database scheme update.
 
 
 Proper application example
@@ -111,6 +119,8 @@ it will fail and not complete.
 
 The reason is like following.
 
+
+### Lack of **sqlite3.h** and **libsqlite3.so**
 When sqlite3 gem is installed, it is making **native extension**.
 This means that gem installer does **C compile** and **link**.
 But Heroku's Cedar stack dose not have **sqlite3.h** that is included when C compiler is running,
@@ -122,13 +132,15 @@ we have to solve these two problems like **sqlite3.h** and **libsqlite3.so**.
 
 In addition to that, Heroku has other two problems.
 
-The first problem is that 
-default buildpack [heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby)
+
+### Overwriting **config/database.yml** 
+The default buildpack [heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby)
 is overwriting **config/database.yml**  file and
 sqlite3 configuration will be disappeared.
 
-The second problem is that 
-default buildpack [heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby)
+
+### Automatic installation of **heroku-postgresql:hobby-dev addon**
+The default buildpack [heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby)
 is automatically installing **heroku-postgresql:hobby-dev addon**.
 This **heroku-postgresql addon** require the "pg" gem,
 and it will cause the runtime error because "pg" gem is not installed.  
