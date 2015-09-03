@@ -561,6 +561,8 @@ WARNING
 
           puts "Skipping Janky Stuff and trying to get bundler to point to the right stuff"
           puts `pwd`
+          puts `bundle config`
+          puts `ls -lah vendor/sqlite`
           #puts "Running: ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so"
           #run("ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so")                        # for sqlite3   make symbolic link
           #puts "Running: cp #{File.expand_path(  '../../vendor/sqlite3.h', $PROGRAM_NAME )} #{yaml_include}"
