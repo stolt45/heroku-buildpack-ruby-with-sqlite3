@@ -23,8 +23,8 @@ class LanguagePack::Rails2 < LanguagePack::Ruby
   def default_config_vars
     instrument "rails2.default_config_vars" do
       super.merge({
-        "RAILS_ENV" => "production",
-        "RACK_ENV" => "production"
+        "RAILS_ENV" => env("RAILS_ENV") || "production",
+        "RACK_ENV"  => env("RACK_ENV")  || "production",
       })
     end
   end
@@ -62,9 +62,9 @@ private
 
   # most rails apps need a database
   # @return [Array] shared database addon
-#  def add_dev_database_addon                # for sqlite3   prevent from forcing addon 'heroku-postgresql:hobby-dev'
-#    ['heroku-postgresql:hobby-dev']
-#  end
+  def add_dev_database_addon
+    ['heroku-postgresql:hobby-dev']
+  end
 
   # sets up the profile.d script for this buildpack
   def setup_profiled
