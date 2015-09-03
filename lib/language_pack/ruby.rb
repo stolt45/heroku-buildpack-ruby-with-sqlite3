@@ -561,11 +561,10 @@ WARNING
 
           puts "Skipping Janky Stuff and trying to get bundler to point to the right stuff"
           puts `pwd`
-          puts `bundle config`
-          puts `ls -lah vendor/sqlites`
+          puts `ls -lah vendor/sqlite3`
 
           puts "Adding new bundle config"
-          run("bundle config build.sqlite3 -- --srcdir=vendor/sqlite3 --with-sqlite3-lib=vendor/sqlite3/lib")
+          run("bundle config --global build.sqlite3 -- --srcdir=vendor/sqlite3 --with-sqlite3-lib=vendor/sqlite3/lib")
           puts `bundle config`
           #puts "Running: ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so"
           #run("ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so")                        # for sqlite3   make symbolic link
