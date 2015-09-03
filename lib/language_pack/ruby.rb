@@ -565,7 +565,7 @@ WARNING
           puts `ls -lah #{File.expand_path(  '../../vendor/sqlite3', $PROGRAM_NAME )}`
 
           puts "Adding new bundle config"
-          run("bundle config --global build.sqlite3 -- --srcdir=#{ENV["BUILD_DIR"]}vendor/sqlite3 --with-sqlite3-lib=#{ENV["BUILD_DIR"]}vendor/sqlite3/lib")
+          run("bundle config --global build.sqlite3 -- --srcdir=#{File.expand_path(  '../../vendor/sqlite3', $PROGRAM_NAME )} --with-sqlite3-lib=#{File.expand_path(  '../../vendor/sqlite3/lib', $PROGRAM_NAME )} ")
           puts `bundle config`
           #puts "Running: ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so"
           #run("ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so")                        # for sqlite3   make symbolic link
