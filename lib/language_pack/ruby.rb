@@ -563,7 +563,7 @@ WARNING
           puts `pwd`
           puts `ls -lah #{File.expand_path(  '../../vendor/sqlite3/bin', $PROGRAM_NAME )}`
 
-          puts `ls #{File.expand_path(  '../../.bundle/', PROGRAM_NAME )}`
+          puts `ls #{File.expand_path(  '../../.bundle/', $PROGRAM_NAME )}`
           #puts "Adding new bundle config"
           run("bundle config --global build.sqlite3 -- --with-sqlite3-dir=#{File.expand_path(  '../../vendor/sqlite3/bin', $PROGRAM_NAME )} --srcdir=#{File.expand_path(  '../../vendor/sqlite3', $PROGRAM_NAME )} --with-sqlite3-lib=#{File.expand_path(  '../../vendor/sqlite3/lib', $PROGRAM_NAME )} ")
           puts `bundle config`
