@@ -562,7 +562,7 @@ WARNING
           puts "Skipping Janky Stuff and trying to get bundler to point to the right stuff"
           puts `pwd`
           puts `env`
-          puts `ls -lah`
+          puts `ls -lah #{File.expand_path(  '../../vendor/sqlite3', $PROGRAM_NAME )}`
 
           puts "Adding new bundle config"
           run("bundle config --global build.sqlite3 -- --srcdir=#{ENV["BUILD_DIR"]}vendor/sqlite3 --with-sqlite3-lib=#{ENV["BUILD_DIR"]}vendor/sqlite3/lib")
