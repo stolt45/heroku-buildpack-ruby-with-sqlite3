@@ -559,13 +559,12 @@ WARNING
           }
           env_vars["BUNDLER_LIB_PATH"] = "#{bundler_path}" if ruby_version.ruby_version == "1.8.7"
 
-          puts "Outputting yaml_lib dir from #{yaml_lib}" 
-          run("ls -lah #{yaml_lib}")
-
-          puts "Running: ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so"
-          run("ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so")                        # for sqlite3   make symbolic link
-          puts "Running: cp #{File.expand_path(  '../../vendor/sqlite3.h', $PROGRAM_NAME )} #{yaml_include}"
-          run("cp #{File.expand_path( "../../vendor/sqlite3.h", $PROGRAM_NAME )} #{yaml_include}")   # for sqlite3   prepare sqlite3.h
+          puts "Skipping Janky Stuff and trying to get bundler to point to the right stuff"
+          puts `pwd`
+          #puts "Running: ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so"
+          #run("ln -s /usr/lib/libsqlite3.so.0.8.6 #{yaml_lib}/libsqlite3.so")                        # for sqlite3   make symbolic link
+          #puts "Running: cp #{File.expand_path(  '../../vendor/sqlite3.h', $PROGRAM_NAME )} #{yaml_include}"
+          #run("cp #{File.expand_path( "../../vendor/sqlite3.h", $PROGRAM_NAME )} #{yaml_include}")   # for sqlite3   prepare sqlite3.h
 
           puts "Running: #{bundle_command}"
           instrument "ruby.bundle_install" do
